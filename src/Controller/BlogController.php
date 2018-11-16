@@ -8,31 +8,54 @@
 
 namespace App\Controller;
 
+use App\Entity\Article;
+use App\Entity\Category;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+
 
 class BlogController extends AbstractController
 {
     /**
-     * @route("/blog/page/{page}", name = "blog_list", requirements = { "page" = "\d+"})
+     * Show all row from article's entity
+     *
+     * @Route("/", name="blog_index")
+     * @return Response A response instance
      */
-
-    public function list($page = 1)
+    public function index() :Response
     {
-        return $this->render("index.html.twig", ['page' => $page]);
+        $articles = $this->getDoctrine()
+            ->getRepository(Article::class)
+            ->findAll();
+
+        if (!$articles) {
+            throw $this->createNotFoundException('No article found in article\'s table.');
+        }
+
+        return $this->render('blog/index.html.twig', ['articles' => $articles]);
     }
 
     /**
-     * @route("/blog/{slug}", name = "blog_show", requirements = { "slug" = "[a-z0-9-]+" })
+     * @param string $category
+     * @Route("/category/{category}", name="blog_show_category")
+     * @return Response
      */
-
-    public function show($slug = "article-sans-titre")
+    public function showByCategory(string $category) :Response
     {
-        $slug = str_replace("-", " ", $slug);
-        $slug = ucwords($slug);
+        $category = $this->getDoctrine()->getRepository(Category::class)->findOneByName($category);
+        $articles = $this->getDoctrine()->getRepository(Article::class)->findByCategory(['category' => $category->getId()], ['id'=>'DESC'], 3);
 
-        return $this->render("blog.html.twig", ['slug' => $slug]);
+        return $this->render('blog/category.html.twig', ['articles' => $articles, 'category'=>$category]);
     }
-
 }
+
+
+
+
+
+
+
+
