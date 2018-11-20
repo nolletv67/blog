@@ -8,31 +8,41 @@
 
 namespace App\Controller;
 
+use App\Entity\Article;
+use App\Entity\Category;
+use App\Form\ArticleSearchType;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class BlogController extends AbstractController
 {
     /**
-     * @route("/blog/page/{page}", name = "blog_list", requirements = { "page" = "\d+"})
+     * @param Request $request
+     * @route("/form/articles", name="blog_search")
+     * @return Response A response instance
      */
-
-    public function list($page = 1)
+    public function index(Request $request): Response
     {
-        return $this->render("index.html.twig", ['page' => $page]);
+
+        $articles = $this->getDoctrine()->getRepository(Article::class)->findAll();
+        if (!$articles) {
+            throw $this->createNotFoundException('No article found in article\'s table.');
+        }
+
+        $form->handleRequest($request);
+
+        $form = $this->createForm(ArticleSearchType::class, null, ['method' => Request::METHOD_GET]);
+
+        $category = new Category();
+        $form = $this->createForm(CategoryType::class, $category);
+
+        if ($form->isSubmitted()) {
+            $data = $form->getData();
+        }
+
+        return $this->render('form/search.html.twig', ['articles' => $articles, 'form' => $form->createView()]);
+
     }
-
-    /**
-     * @route("/blog/{slug}", name = "blog_show", requirements = { "slug" = "[a-z0-9-]+" })
-     */
-
-    public function show($slug = "article-sans-titre")
-    {
-        $slug = str_replace("-", " ", $slug);
-        $slug = ucwords($slug);
-
-        return $this->render("blog.html.twig", ['slug' => $slug]);
-    }
-
 }
