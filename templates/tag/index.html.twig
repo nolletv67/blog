@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tag{% endblock %}
+
+{% block body %}
+
+    <h3>Tag Name : {{ tagArticles.owner.name }}</h3>
+
+    <h4>Articles with this tag</h4>
+
+    <ul>
+        {% for article in tagArticles %}
+            <li>
+                {{ article.title }}
+                {{ article.content }}
+            </li>
+        {% endfor %}
+    </ul>
+
+
+{% endblock %}
