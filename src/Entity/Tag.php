@@ -7,9 +7,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\CategoryRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\TagRepository")
  */
-class Category
+class Tag
 {
     /**
      * @ORM\Id()
@@ -19,19 +19,27 @@ class Category
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Article", mappedBy="category")
-     * @ORM\JoinColumn(onDelete="SET NULL")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Article", inversedBy="tags")
      */
     private $articles;
 
     public function __construct()
     {
         $this->articles = new ArrayCollection();
+    }
+
+    /**
+     * toString
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getArticles();
     }
 
     public function getId(): ?int
@@ -47,7 +55,6 @@ class Category
     public function setName(string $name): self
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -63,9 +70,7 @@ class Category
     {
         if (!$this->articles->contains($article)) {
             $this->articles[] = $article;
-            $article->setCategory($this);
         }
-
         return $this;
     }
 
@@ -73,12 +78,7 @@ class Category
     {
         if ($this->articles->contains($article)) {
             $this->articles->removeElement($article);
-            // set the owning side to null (unless already changed)
-            if ($article->getCategory() === $this) {
-                $article->setCategory(null);
-            }
         }
-
         return $this;
     }
 }
