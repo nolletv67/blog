@@ -18,6 +18,6 @@ class ArticleController extends AbstractController
         foreach ($categories as $key => $category) {
             $categories[$key] = $category->getArticles();
         }
-        return $this->render('article/cat_index.html.twig', ['categories' => $categories]);
+        return $this->render('article/index.html.twig', ['categories' => $categories]);
     }
 }
